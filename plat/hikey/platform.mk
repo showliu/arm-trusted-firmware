@@ -30,11 +30,12 @@
 #
 
 # On Hikey, the TSP can execute either from Trusted SRAM or Trusted DRAM.
-# Trusted SRAM is the default.
+# Trusted SRAM is not supported yet, so Trusted DRAM is the default.
 #
-PLAT_TSP_LOCATION	:=	tsram
+PLAT_TSP_LOCATION	:=	dram
 ifeq (${PLAT_TSP_LOCATION}, tsram)
-  PLAT_TSP_LOCATION_ID := PLAT_TRUSTED_SRAM_ID
+  #PLAT_TSP_LOCATION_ID := PLAT_TRUSTED_SRAM_ID
+  $(error "PLAT_TSP_LOCATION=tsram is not supported yet, use 'dram'")
 else ifeq (${PLAT_TSP_LOCATION}, dram)
   PLAT_TSP_LOCATION_ID := PLAT_DRAM_ID
 else

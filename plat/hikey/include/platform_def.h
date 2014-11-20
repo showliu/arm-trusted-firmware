@@ -135,18 +135,21 @@
 /*******************************************************************************
  * BL3-2 specific defines.
  ******************************************************************************/
+
+#define BL32_SRAM_BASE			BL31_LIMIT
+#define BL32_SRAM_LIMIT			(BL31_LIMIT + 0x00080000)
+#define BL32_DRAM_BASE			DRAM_SEC_BASE
+#define BL32_DRAM_LIMIT			(DRAM_SEC_BASE + 0x100000)
+
 #if (PLAT_TSP_LOCATION_ID == PLAT_TRUSTED_SRAM_ID)
-#define TSP_SEC_MEM_BASE                BL31_LIMIT
-#define TSP_SEC_MEM_SIZE                0x00080000 //512K
-#define BL32_BASE                       TSP_SEC_MEM_BASE
-#define BL32_LIMIT                      (BL32_BASE+TSP_SEC_MEM_BASE)
+#error "Not implemented"
 //not used
 //#define BL32_PROGBITS_LIMIT   (BL32_LIMIT+(BL32_SIZE/2))
 #elif (PLAT_TSP_LOCATION_ID == PLAT_DRAM_ID)
 #define TSP_SEC_MEM_BASE		DRAM_SEC_BASE
 #define TSP_SEC_MEM_SIZE		DRAM_SEC_SIZE
-#define BL32_BASE			TSP_SEC_MEM_BASE
-#define BL32_LIMIT			(BL32_BASE + 0x100000)
+#define BL32_BASE			BL32_DRAM_BASE
+#define BL32_LIMIT			BL32_DRAM_LIMIT
 #else
 #error "Unsupported PLAT_TSP_LOCATION_ID value"
 #endif
