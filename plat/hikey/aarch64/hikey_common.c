@@ -79,6 +79,13 @@ static const mmap_region_t hikey_mmap[] = {
 	{0}
 };
 #endif
+#if IMAGE_BL32
+static const mmap_region_t hikey_mmap[] = {
+	MAP_DEVICE,
+	MAP_NS_DRAM,
+	{0}
+};
+#endif
 
 /* Array of secure interrupts to be configured by the gic driver */
 const unsigned int irq_sec_array[] = {
