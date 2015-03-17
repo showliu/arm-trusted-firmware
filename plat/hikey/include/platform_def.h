@@ -136,10 +136,12 @@
  ******************************************************************************/
 #if (PLAT_TSP_LOCATION_ID == PLAT_TRUSTED_SRAM_ID)
 /*******************************************************************************
- * TODO: Create room in SRAM for BL32. Allocation below is not big enough.
+ * TODO:
+ * Create room in SRAM for BL32. Allocation below (160KB) is not big enough.
+ * bl32.bin debug build is about 300KB, so we are short 140KB.
  ******************************************************************************/
 #define TSP_SEC_MEM_BASE		BL31_LIMIT
-#define TSP_SEC_MEM_SIZE		XG2RAM0_BASE+XG2RAM0_SIZE
+#define TSP_SEC_MEM_SIZE		(XG2RAM0_BASE+XG2RAM0_SIZE-BL31_LIMIT)
 #define BL32_BASE			BL31_LIMIT
 #define BL32_LIMIT			XG2RAM0_BASE+XG2RAM0_SIZE
 #define BL32_PROGBITS_LIMIT		(BL32_LIMIT-BL32_BASE)/2
