@@ -42,6 +42,9 @@
 #define XG2RAM0_BASE			0xF9800000
 #define XG2RAM0_SIZE			0x00400000
 
+#define PLAT_TRUSTED_SRAM_ID	0
+#define PLAT_DRAM_ID		1
+
 /*
  * DRAM at 0x0000_0000 is divided in two regions:
  *   - Secure DRAM (default is the top 16MB except for the last 2MB, which are

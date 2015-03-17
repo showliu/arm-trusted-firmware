@@ -132,6 +132,25 @@
 #define BL31_LIMIT			(BL31_BASE + 0x40000)
 
 /*******************************************************************************
+ * BL3-2 specific defines.
+ ******************************************************************************/
+#if (PLAT_TSP_LOCATION_ID == PLAT_TRUSTED_SRAM_ID)
+#define TSP_SEC_MEM_BASE                BL31_LIMIT
+#define TSP_SEC_MEM_SIZE                0x00080000 //512K
+#define BL32_BASE                       TSP_SEC_MEM_BASE
+#define BL32_LIMIT                      (BL32_BASE+TSP_SEC_MEM_BASE)
+//not used
+//#define BL32_PROGBITS_LIMIT   (BL32_LIMIT+(BL32_SIZE/2))
+#elif (PLAT_TSP_LOCATION_ID == PLAT_DRAM_ID)
+#define TSP_SEC_MEM_BASE		(NS_IMAGE_OFFSET - DRAM_SEC_SIZE) //in DRAM_NS_BASE
+#define TSP_SEC_MEM_SIZE		DRAM_SEC_SIZE
+#define BL32_BASE			TSP_SEC_MEM_BASE
+#define BL32_LIMIT			(BL32_BASE+TSP_SEC_MEM_BASE)
+#else
+#error "Unsupported PLAT_TSP_LOCATION_ID value"
+#endif
+
+/*******************************************************************************
  * Load address of BL3-3 in the HiKey port
  ******************************************************************************/
 #define NS_IMAGE_OFFSET			(DRAM_BASE + 0x37000000)  /* 880MB */
@@ -141,7 +160,7 @@
  ******************************************************************************/
 #define ADDR_SPACE_SIZE			(1ull << 32)
 
-#if IMAGE_BL1 || IMAGE_BL2 || IMAGE_BL31
+#if IMAGE_BL1 || IMAGE_BL2 || IMAGE_BL31 || IMAGE_BL32
 # define MAX_XLAT_TABLES		3
 #endif
 
