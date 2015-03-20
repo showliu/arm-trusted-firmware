@@ -136,21 +136,17 @@
  * BL3-2 specific defines.
  ******************************************************************************/
 #if (PLAT_TSP_LOCATION_ID == PLAT_TRUSTED_SRAM_ID)
-/*******************************************************************************
- * TODO:
- * Create room in SRAM for BL32. Allocation below (160KB) is not big enough.
- * bl32.bin debug build is about 300KB, so we are short 140KB.
- ******************************************************************************/
-#define TSP_SEC_MEM_BASE		BL31_LIMIT
-#define TSP_SEC_MEM_SIZE		(XG2RAM0_BASE+XG2RAM0_SIZE-BL31_LIMIT)
-#define BL32_BASE			BL31_LIMIT
-#define BL32_LIMIT			XG2RAM0_BASE+XG2RAM0_SIZE
-#define BL32_PROGBITS_LIMIT		(BL32_LIMIT-BL32_BASE)/2
+#define TSP_SEC_MEM_BASE                BL31_LIMIT
+#define TSP_SEC_MEM_SIZE                0x00080000 //512K
+#define BL32_BASE                       TSP_SEC_MEM_BASE
+#define BL32_LIMIT                      (BL32_BASE+TSP_SEC_MEM_BASE)
+//not used
+//#define BL32_PROGBITS_LIMIT   (BL32_LIMIT+(BL32_SIZE/2))
 #elif (PLAT_TSP_LOCATION_ID == PLAT_DRAM_ID)
-#define TSP_SEC_MEM_BASE		(NS_IMAGE_OFFSET - DRAM_SEC_SIZE)
+#define TSP_SEC_MEM_BASE		(NS_IMAGE_OFFSET - DRAM_SEC_SIZE) //in DRAM_NS_BASE
 #define TSP_SEC_MEM_SIZE		DRAM_SEC_SIZE
 #define BL32_BASE			TSP_SEC_MEM_BASE
-#define BL32_LIMIT			NS_IMAGE_OFFSET
+#define BL32_LIMIT			(BL32_BASE+TSP_SEC_MEM_BASE)
 #else
 #error "Unsupported PLAT_TSP_LOCATION_ID value"
 #endif
