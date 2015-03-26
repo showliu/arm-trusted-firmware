@@ -51,7 +51,7 @@
  *     used by the SCP for DDR retraining)
  *   - Non-Secure DRAM (remaining DRAM starting at DRAM_BASE)
  */
-#define DRAM_SEC_SIZE			0x01000000
+#define DRAM_SEC_SIZE			(0x01000000 - 0x200000)
 #define DRAM_SEC_BASE			(DRAM_BASE + DRAM_SIZE - DRAM_SEC_SIZE)
 
 #define DRAM_NS_BASE			DRAM_BASE
