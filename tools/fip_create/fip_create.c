@@ -41,10 +41,12 @@
 /* Values returned by getopt() as part of the command line parsing */
 #define OPT_TOC_ENTRY 0
 #define OPT_DUMP 1
-#define OPT_HELP 2
+#define OPT_PAD 2
+#define OPT_HELP 3
 
 file_info_t files[MAX_FILES];
 unsigned file_info_count = 0;
+unsigned padding = 1;
 uuid_t uuid_null = {0};
 
 /*
@@ -116,7 +118,9 @@ static void print_usage(void)
 	printf("\tThis tool is used to create a Firmware Image Package.\n\n");
 	printf("Options:\n");
 	printf("\t--help: Print this help message and exit\n");
-	printf("\t--dump: Print contents of FIP\n\n");
+	printf("\t--dump: Print contents of FIP\n");
+	printf("\t--pad N: Make FIP_FILENAME a multiple of N bytes "
+		"by appending null bytes as needed (default: 1)\n\n");
 	printf("\tComponents that can be added/updated:\n");
 	for (; entry->command_line_name != NULL; entry++) {
 		printf("\t--%s%s\t\t%s",
@@ -210,6 +214,8 @@ static int write_memory_to_file(const uint8_t *start, const char *filename,
 {
 	FILE *stream;
 	unsigned int bytes_written;
+	unsigned int pad = (size % padding) ? (padding - (size % padding)) : 0;
+	int ret = 0;
 
 	/* Write the packed file out to the filesystem */
 	stream = fopen(filename, "r+");
@@ -227,15 +233,26 @@ static int write_memory_to_file(const uint8_t *start, const char *filename,
 	}
 
 	bytes_written = fwrite(start, sizeof(uint8_t), size, stream);
-	fclose(stream);
-
 	if (bytes_written != size) {
 		printf("Error: Incorrect write for file \"%s\": Size=%u,"
 			"Written=%u bytes.\n", filename, size, bytes_written);
-		return EIO;
+		ret = EIO;
+		goto out;
 	}
-
-	return 0;
+	while (pad) {
+		bytes_written = fwrite("\0", sizeof(uint8_t), 1, stream);
+		if (bytes_written != 1) {
+			printf("Error: Failed to write padding bytes "
+				"to file \"%s\": remaining=%u bytes.\n",
+				filename, pad);
+			ret = EIO;
+			goto out;
+		}
+		--pad;
+	}
+out:
+	fclose(stream);
+	return ret;
 }
 
 
@@ -582,6 +599,15 @@ static int parse_cmdline(int argc, char **argv, struct option *options,
 			do_dump = 1;
 			continue;
 
+		case OPT_PAD:
+			if (optarg) {
+				padding = atoi(optarg);
+			} else {
+				printf("--pad requires an argument\n");
+				exit(1);
+			}
+			continue;
+
 		case OPT_HELP:
 			print_usage();
 			exit(0);
@@ -614,10 +640,10 @@ int main(int argc, char **argv)
 
 	/* Initialise for getopt_long().
 	 * Use image table as defined at top of file to get options.
-	 * Add 'dump' option, 'help' option and end marker.
+	 * Add 'dump', 'pad' and 'help' options and end marker.
 	 */
 	static struct option long_options[(sizeof(toc_entry_lookup_list)/
-					   sizeof(entry_lookup_list_t)) + 2];
+					   sizeof(entry_lookup_list_t)) + 3];
 
 	for (i = 0;
 	     /* -1 because we dont want to process end marker in toc table */
@@ -635,6 +661,12 @@ int main(int argc, char **argv)
 	long_options[i].has_arg = 0;
 	long_options[i].flag = 0;
 	long_options[i].val = OPT_DUMP;
+
+	/* Add '--pad' option */
+	long_options[++i].name = "pad";
+	long_options[i].has_arg = 1;
+	long_options[i].flag = 0;
+	long_options[i].val = OPT_PAD;
 
 	/* Add '--help' option */
 	long_options[++i].name = "help";
