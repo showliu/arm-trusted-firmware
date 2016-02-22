@@ -383,6 +383,40 @@ static int load_bl33(bl31_params_t *bl2_to_bl31_params)
 }
 
 /*******************************************************************************
+ * Load the Device Tree Blob if there's one.
+ * If a platform does not want to attempt to load a DTB it must leave
+ * DTB_BASE undefined.
+ * Return 0 on success or if there's no DTB to load, a negative error
+ * code otherwise.
+ ******************************************************************************/
+static int load_dtb(void)
+{
+	int e = 0;
+#ifdef DTB_BASE
+	meminfo_t dtb_mem_info;
+	image_info_t dtb_image_info;
+
+	INFO("BL2: Loading DTB\n");
+	bl2_plat_get_dtb_meminfo(&dtb_mem_info);
+	dtb_image_info.h.version = VERSION_1;
+	e = load_image(&dtb_mem_info,
+		       DTB_IMAGE_NAME,
+		       DTB_BASE,
+		       &dtb_image_info,
+		       NULL);
+	if (e) {
+		/* Proceed without DT */
+		return 0;
+	}
+
+	/* The subsequent handling of DTB is platform specific */
+	e = bl2_plat_handle_dtb(&dtb_image_info);
+#endif /* DTB_BASE */
+
+	return e;
+}
+
+/*******************************************************************************
  * The only thing to do in BL2 is to load further images and pass control to
  * BL3-1. The memory occupied by BL2 will be reclaimed by BL3-x stages. BL2 runs
  * entirely in S-EL1.
@@ -444,6 +478,12 @@ void bl2_main(void)
 	e = load_bl33(bl2_to_bl31_params);
 	if (e) {
 		ERROR("Failed to load BL3-3 (%i)\n", e);
+		panic();
+	}
+
+	e = load_dtb();
+	if (e) {
+		ERROR("Failed to load DTB (%i)\n", e);
 		panic();
 	}
 

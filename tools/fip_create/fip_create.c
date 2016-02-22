@@ -65,6 +65,8 @@ static entry_lookup_list_t toc_entry_lookup_list[] = {
 	  "bl32", NULL, FLAG_FILENAME},
 	{ "Non-Trusted Firmware BL3-3", UUID_NON_TRUSTED_FIRMWARE_BL33,
 	  "bl33", NULL, FLAG_FILENAME},
+	{ "Device Tree Blob (DTB)", UUID_DEVICE_TREE_BLOB,
+	  "dtb", NULL, FLAG_FILENAME},
 	/* Key Certificates */
 	{ "Root Of Trust key certificate", UUID_ROT_KEY_CERT,
 	  "rot-cert", NULL, FLAG_FILENAME },

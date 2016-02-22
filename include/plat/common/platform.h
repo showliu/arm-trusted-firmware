@@ -160,6 +160,22 @@ void bl2_plat_set_bl32_ep_info(struct image_info *image,
 /* Gets the memory layout for BL3-2 */
 void bl2_plat_get_bl32_meminfo(struct meminfo *mem_info);
 
+/*
+ * This function is called after loading DTB image and it is used to perform
+ * any platform-specific actions.
+ */
+int bl2_plat_handle_dtb(struct image_info *dtb_image_info);
+
+/*******************************************************************************
+ * Conditionally mandatory BL2 functions: must be implemented if DTB image
+ * is supported
+ ******************************************************************************/
+void bl2_plat_set_dtb_ep_info(struct image_info *image,
+			      struct entry_point_info *ep);
+
+/* Gets the memory layout for the DTB */
+void bl2_plat_get_dtb_meminfo(struct meminfo *mem_info);
+
 /*******************************************************************************
  * Optional BL2 functions (may be overridden)
  ******************************************************************************/

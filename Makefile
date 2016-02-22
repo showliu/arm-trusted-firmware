@@ -567,6 +567,7 @@ endif
 ifeq (${NEED_BL32},yes)
 $(if ${BL32}, $(eval $(call MAKE_TOOL_ARGS,32,${BL32},in_fip,${CERTS},${CERTS},${BL32_KEY})),\
 	$(eval $(call MAKE_BL,32,in_fip,${CERTS},${CERTS},${BL32_KEY})))
+$(if ${DTB}, $(eval FIP_ARGS += --dtb ${DTB}))
 endif
 
 ifeq (${NEED_BL30},yes)

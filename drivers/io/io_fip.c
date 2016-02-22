@@ -76,6 +76,10 @@ static const plat_fip_name_uuid_t name_uuid[] = {
 	{BL32_IMAGE_NAME, UUID_SECURE_PAYLOAD_BL32},
 #endif /* BL32_IMAGE_NAME */
 	{BL33_IMAGE_NAME, UUID_NON_TRUSTED_FIRMWARE_BL33},
+#ifdef DTB_IMAGE_NAME
+	/* DTB is optional */
+	{DTB_IMAGE_NAME, UUID_DEVICE_TREE_BLOB},
+#endif /* BL32_IMAGE_NAME */
 #if TRUSTED_BOARD_BOOT
 	/* Certificates */
 	{BL2_CERT_NAME, UUID_TRUSTED_BOOT_FIRMWARE_BL2_CERT},
