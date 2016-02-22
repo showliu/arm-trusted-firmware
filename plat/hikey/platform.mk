@@ -48,7 +48,9 @@ CRASH_CONSOLE_BASE	:=	PL011_UART3_BASE
 $(eval $(call add_define,PLAT_TSP_LOCATION_ID))
 $(eval $(call add_define,CONSOLE_BASE))
 $(eval $(call add_define,CRASH_CONSOLE_BASE))
-
+ifneq ($(DTB),)
+$(eval $(call add_define,DTB))
+endif
 
 PLAT_INCLUDES		:=	-Iplat/hikey/include/
 

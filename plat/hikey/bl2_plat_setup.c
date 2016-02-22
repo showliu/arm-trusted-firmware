@@ -277,6 +277,27 @@ int bl2_plat_handle_bl30(image_info_t *bl30_image_info)
 	return 0;
 }
 
+#ifdef DTB
+/*******************************************************************************
+ * Populate the extents of memory available for loading DTB.
+ ******************************************************************************/
+void bl2_plat_get_dtb_meminfo(meminfo_t *dtb_meminfo)
+{
+	dtb_meminfo->total_base = DTB_BASE;
+	dtb_meminfo->total_size = DTB_SIZE;
+	dtb_meminfo->free_base  = DTB_BASE;
+	dtb_meminfo->free_size  = DTB_SIZE;
+}
+
+/*******************************************************************************
+ * Perform any platform-specific action on the DTB.
+ ******************************************************************************/
+int bl2_plat_handle_dtb(struct image_info *dtb_image_info)
+{
+	return 0;
+}
+#endif
+
 /*******************************************************************************
  * Before calling this function BL31 is loaded in memory and its entrypoint
  * is set by load_image. This is a placeholder for the platform to change

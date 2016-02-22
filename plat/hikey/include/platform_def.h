@@ -71,6 +71,11 @@
 /* Non-Trusted Firmware BL3-3 */
 #define BL33_IMAGE_NAME			"bl33.bin" /* e.g. UEFI */
 
+/* Device Tree Blob */
+#ifdef DTB
+#define DTB_IMAGE_NAME			"dt.dtb"
+#endif
+
 /* Firmware Image Package */
 #define FIP_IMAGE_NAME			"fip.bin"
 
@@ -159,6 +164,11 @@
 #define BL32_LIMIT			BL32_DRAM_LIMIT
 #else
 #error "Unsupported PLAT_TSP_LOCATION_ID value"
+#endif
+
+#ifdef DTB
+#define DTB_SIZE			0x10000 /* 64 KiB */
+#define DTB_BASE			(DRAM_BASE + DRAM_SIZE - DTB_SIZE)
 #endif
 
 /*******************************************************************************

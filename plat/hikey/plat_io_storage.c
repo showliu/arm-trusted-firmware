@@ -123,6 +123,13 @@ static const io_file_spec_t bl33_file_spec = {
 	.mode = FOPEN_MODE_RB
 };
 
+#ifdef DTB
+static const io_file_spec_t dtb_file_spec = {
+	.path = DTB_IMAGE_NAME,
+	.mode = FOPEN_MODE_RB
+};
+#endif
+
 static int open_loader_mem(const uintptr_t spec);
 static int open_fip(const uintptr_t spec);
 static int open_dw_mmc(const uintptr_t spec);
@@ -182,6 +189,13 @@ static const struct plat_io_policy policies[] = {
 		(uintptr_t)&bl33_file_spec,
 		open_fip
 	}, {
+#ifdef DTB
+		DTB_IMAGE_NAME,
+		&fip_dev_handle,
+		(uintptr_t)&dtb_file_spec,
+		open_fip
+	}, {
+#endif
 		0, 0, 0, 0
 	}
 };
