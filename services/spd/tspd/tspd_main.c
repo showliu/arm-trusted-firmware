@@ -70,7 +70,7 @@ DEFINE_SVC_UUID(tsp_uuid,
 		0x5b3056a0, 0x3291, 0x427b, 0x98, 0x11,
 		0x71, 0x68, 0xca, 0x50, 0xf3, 0xfa);
 
-int32_t tspd_init(void);
+int32_t tspd_init(const void *);
 
 uint64_t tspd_handle_sp_preemption(void *handle)
 {
@@ -254,7 +254,7 @@ int32_t tspd_setup(void)
  * performs a synchronous entry into the Secure payload. The SP passes control
  * back to this routine through a SMC.
  ******************************************************************************/
-int32_t tspd_init(void)
+int32_t tspd_init(const void *)
 {
 	uint64_t mpidr = read_mpidr();
 	uint32_t linear_id = platform_get_core_pos(mpidr);

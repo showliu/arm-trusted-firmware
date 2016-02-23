@@ -45,7 +45,13 @@
  * for SP execution. In cases where both SPD and SP are absent, or when SPD
  * finds it impossible to execute SP, this pointer is left as NULL
  ******************************************************************************/
-static int32_t (*bl32_init)(void);
+static int32_t (*bl32_init)(const void *dtb);
+
+#ifdef DTB_BASE
+static const void *dtb = (void *)DTB_BASE;
+#else
+static const void *dtb = 0;
+#endif
 
 /*******************************************************************************
  * Variable to indicate whether next image to execute after BL31 is BL33
@@ -105,7 +111,7 @@ void bl31_main(void)
 	 */
 	if (bl32_init) {
 		INFO("BL3-1: Initializing BL3-2\n");
-		(*bl32_init)();
+		(*bl32_init)(dtb);
 	}
 	/*
 	 * We are ready to enter the next EL. Prepare entry into the image
@@ -163,7 +169,7 @@ void bl31_prepare_next_image_entry(void)
  * This function initializes the pointer to BL32 init function. This is expected
  * to be called by the SPD after it finishes all its initialization
  ******************************************************************************/
-void bl31_register_bl32_init(int32_t (*func)(void))
+void bl31_register_bl32_init(int32_t (*func)(const void *))
 {
 	bl32_init = func;
 }

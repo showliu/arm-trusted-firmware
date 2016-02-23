@@ -85,7 +85,7 @@ uint32_t opteed_rw;
 
 
 
-static int32_t opteed_init(void);
+static int32_t opteed_init(const void *dtb);
 
 /*******************************************************************************
  * This function is the handler registered for S-EL1 interrupts by the
@@ -303,7 +303,7 @@ err:
  * non-secure state. This function performs a synchronous entry into
  * OPTEE. OPTEE passes control back to this routine through a SMC.
  ******************************************************************************/
-static int32_t opteed_init(void)
+static int32_t opteed_init(const void *dtb)
 {
 	uint64_t mpidr = read_mpidr();
 	uint32_t linear_id = platform_get_core_pos(mpidr);
@@ -317,6 +317,9 @@ static int32_t opteed_init(void)
 	 */
 	optee_entry_point = bl31_plat_get_next_image_ep_info(SECURE);
 	assert(optee_entry_point);
+
+	/* Add the DTB address to the arguments now that we know it */
+	optee_entry_point->args.arg2 = (unsigned long)dtb;
 
 	cm_init_context(mpidr, optee_entry_point);
 
