@@ -37,6 +37,7 @@
 #endif
 #include <debug.h>
 
+#ifndef D02_HACKS
  /* Reset fn is needed in BL at reset vector */
 #if IMAGE_BL1 || IMAGE_BL31
 	/*
@@ -71,6 +72,7 @@ func reset_handler
 endfunc reset_handler
 
 #endif /* IMAGE_BL1 || IMAGE_BL31 */
+#endif /* D02_HACKS */
 
 #if IMAGE_BL31 /* The power down core and cluster is needed only in  BL31 */
 	/*

@@ -85,6 +85,10 @@
 	mrs	x0, spsr_el3
 	mrs	x1, elr_el3
 	stp	x0, x1, [sp, #CTX_EL3STATE_OFFSET + CTX_SPSR_EL3]
+#ifdef D02_HACKS
+	mrs	x2, scr_el3
+	str	x2, [sp, #CTX_EL3STATE_OFFSET + CTX_SCR_EL3]
+#endif
 
 	/* Switch to the runtime stack i.e. SP_EL0 */
 	ldr	x2, [sp, #CTX_EL3STATE_OFFSET + CTX_RUNTIME_SP]

@@ -99,8 +99,14 @@ static void cm_init_context_common(cpu_context_t *ctx, const entry_point_info_t 
 	 * TODO: provide the base/global SCR bits using another mechanism?
 	 */
 	scr_el3 = read_scr();
+#ifdef D02_HACKS
+	/* FIQ bit needs to be enabled on D02 */
+	scr_el3 &= ~(SCR_NS_BIT | SCR_RW_BIT | SCR_IRQ_BIT |
+			SCR_ST_BIT | SCR_HCE_BIT);
+#else
 	scr_el3 &= ~(SCR_NS_BIT | SCR_RW_BIT | SCR_FIQ_BIT | SCR_IRQ_BIT |
 			SCR_ST_BIT | SCR_HCE_BIT);
+#endif
 
 	if (security_state != SECURE)
 		scr_el3 |= SCR_NS_BIT;
@@ -166,6 +172,10 @@ static void cm_init_context_common(cpu_context_t *ctx, const entry_point_info_t 
 	 */
 	gp_regs = get_gpregs_ctx(ctx);
 	memcpy(gp_regs, (void *)&ep->args, sizeof(aapcs64_params_t));
+#ifdef D02_HACKS
+	flush_dcache_range((uint64_t)ep, sizeof(entry_point_info_t));
+	flush_dcache_range((uint64_t)ctx, sizeof(cpu_context_t));
+#endif
 }
 
 /*******************************************************************************
@@ -254,6 +264,10 @@ void cm_prepare_el3_exit(uint32_t security_state)
 	el1_sysregs_context_restore(get_sysregs_ctx(ctx));
 
 	cm_set_next_context(ctx);
+
+#ifdef D02_HACKS
+	flush_dcache_range((uint64_t)ctx, sizeof(cpu_context_t));
+#endif
 }
 
 /*******************************************************************************

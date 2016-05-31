@@ -216,6 +216,18 @@ static uint64_t mmap_desc(unsigned attr, unsigned long long addr_pa,
 	 */
 	mem_type = MT_TYPE(attr);
 	if (mem_type == MT_DEVICE) {
+#ifdef D02_HACKS
+		/*
+		 * "DEVICE must be non-shareable, and if code runs at flash, it
+		 * should be configured as cacheable, and XN bit must be 0.
+		 */
+		if (attr & MT_RW) {
+		        desc |= LOWER_ATTRS(ATTR_DEVICE_INDEX | NSH);
+	        	desc |= UPPER_ATTRS(XN);
+		} else {
+		        desc |= LOWER_ATTRS(ATTR_IWBWA_OWBWA_NTR_INDEX | NSH);
+		}
+#else
 		desc |= LOWER_ATTRS(ATTR_DEVICE_INDEX | OSH);
 		/*
 		 * Always map device memory as execute-never.
@@ -224,6 +236,7 @@ static uint64_t mmap_desc(unsigned attr, unsigned long long addr_pa,
 		 * corresponds to a read-sensitive peripheral.
 		 */
 		desc |= UPPER_ATTRS(XN);
+#endif
 	} else { /* Normal memory */
 		/*
 		 * Always map read-write normal memory as execute-never.
@@ -311,15 +324,23 @@ static mmap_region_t *init_xlation_table_inner(mmap_region_t *mm,
 					uint64_t *table,
 					int level)
 {
+#ifdef D02_HACKS
+	unsigned level_size_shift = L0_XLAT_ADDRESS_SHIFT - level *
+						XLAT_TABLE_ENTRIES_SHIFT;
+#else
 	unsigned level_size_shift = L1_XLAT_ADDRESS_SHIFT - (level - 1) *
 						XLAT_TABLE_ENTRIES_SHIFT;
-	unsigned level_size = 1 << level_size_shift;
+#endif
+	unsigned long level_size = 1ul << level_size_shift;
 	u_register_t level_index_mask =
 		(u_register_t)(((u_register_t) XLAT_TABLE_ENTRIES_MASK)
 		<< level_size_shift);
 
+#ifdef D02_HACKS
+	assert(level >= 0 && level <= 3);
+#else
 	assert(level > 0 && level <= 3);
-
+#endif
 	debug_print("New xlat table:\n");
 
 	do  {
@@ -334,7 +355,7 @@ static mmap_region_t *init_xlation_table_inner(mmap_region_t *mm,
 			continue;
 		}
 
-		debug_print("%s VA:%p size:0x%x ", get_level_spacer(level),
+		debug_print("%s VA:%p size:0x%lx ", get_level_spacer(level),
 				(void *)base_va, level_size);
 
 		if (mm->base_va >= base_va + level_size) {

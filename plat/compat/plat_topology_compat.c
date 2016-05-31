@@ -195,6 +195,17 @@ int plat_core_pos_by_mpidr(u_register_t mpidr)
 	/* Ignore the Reserved bits and U bit in MPIDR */
 	mpidr &= MPIDR_AFFINITY_MASK;
 
+#ifdef D02_HACKS
+	/*
+	 * FIXME:
+	 * On D02 mpidr=0x02000x0y with x and y in [0..3]. Mask off the 2
+	 * and keep only LVL1 (bits 15..8) and LVL0 (bits 7..0) because we
+	 * have defined PLATFORM_MAX_AFFLVL to be LVL1.
+	 * The proper thing to do may be to increase PLATFORM_MAX_AFFLVL and
+	 * adjust for that.
+	 */
+	mpidr &= 0xFFFF;
+#endif
 	/*
 	 * Check if any affinity field higher than
 	 * the PLATFORM_MAX_AFFLVL is set.

@@ -76,7 +76,11 @@
 	 */
 	.macro vector_base  label
 	.section .vectors, "ax"
-	.align 11, 0
+	/*
+	 * s/.align 11, 0/.align 11/ to avoid compiler bug.
+	 * See: https://github.com/ARM-software/tf-issues/issues/401
+	 */
+	.align 11
 	\label:
 	.endm
 
@@ -89,7 +93,11 @@
 	 */
 	.macro vector_entry  label
 	.section .vectors, "ax"
-	.align 7, 0
+	/*
+	 * s/.align 7, 0/.align 7/ to avoid compiler bug.
+	 * See: https://github.com/ARM-software/tf-issues/issues/401
+	 */
+	.align 7 
 	\label:
 	.endm
 

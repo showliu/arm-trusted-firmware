@@ -37,6 +37,17 @@
 #include <xlat_tables.h>
 #include "../xlat_tables_private.h"
 
+#ifdef D02_HACKS
+
+/* >4G support */
+CASSERT(ADDR_SPACE_SIZE > 0, assert_valid_addr_space_size);
+
+#define NUM_L0_ENTRIES (ADDR_SPACE_SIZE >> L0_XLAT_ADDRESS_SHIFT)
+
+static uint64_t l0_xlation_table[NUM_L0_ENTRIES]
+		__aligned(NUM_L0_ENTRIES * sizeof(uint64_t));
+
+#else
 /*
  * The virtual address space size must be a power of two (as set in TCR.T0SZ).
  * As we start the initial lookup at level 1, it must also be between 2 GB and
@@ -51,6 +62,8 @@ CASSERT(ADDR_SPACE_SIZE >= (1ull << 31) && ADDR_SPACE_SIZE <= (1ull << 39) &&
 
 static uint64_t l1_xlation_table[NUM_L1_ENTRIES]
 		__aligned(NUM_L1_ENTRIES * sizeof(uint64_t));
+
+#endif /* D02_HACKS */
 
 static unsigned long long tcr_ps_bits;
 
@@ -88,10 +101,15 @@ void init_xlat_tables(void)
 	unsigned long long max_pa;
 	uintptr_t max_va;
 	print_mmap();
+#ifdef D02_HACKS
+	init_xlation_table(0, l0_xlation_table, 0, &max_va, &max_pa);
+#else
 	init_xlation_table(0, l1_xlation_table, 1, &max_va, &max_pa);
+#endif
 	tcr_ps_bits = calc_physical_addr_size_bits(max_pa);
 	assert(max_va < ADDR_SPACE_SIZE);
 }
+
 
 /*******************************************************************************
  * Macro generating the code for the function enabling the MMU in the given
@@ -103,7 +121,7 @@ void init_xlat_tables(void)
  *   _tlbi_fct:		Function to invalidate the TLBs at the current
  *			exception level
  ******************************************************************************/
-#define DEFINE_ENABLE_MMU_EL(_el, _tcr_extra, _tlbi_fct)		\
+#define _DEFINE_ENABLE_MMU_EL(_el, _tcr_extra, _tlbi_fct, _xtbl)		\
 	void enable_mmu_el##_el(unsigned int flags)				\
 	{								\
 		uint64_t mair, tcr, ttbr;				\
@@ -132,7 +150,7 @@ void init_xlat_tables(void)
 		write_tcr_el##_el(tcr);					\
 									\
 		/* Set TTBR bits as well */				\
-		ttbr = (uint64_t) l1_xlation_table;			\
+		ttbr = (uint64_t) (_xtbl);				\
 		write_ttbr0_el##_el(ttbr);				\
 									\
 		/* Ensure all translation table writes have drained */	\
@@ -155,6 +173,14 @@ void init_xlat_tables(void)
 		/* Ensure the MMU enable takes effect immediately */	\
 		isb();							\
 	}
+
+#ifdef D02_HACKS
+#define DEFINE_ENABLE_MMU_EL(_el, _tcr_extra, _tlbi_fct) \
+	_DEFINE_ENABLE_MMU_EL(_el, _tcr_extra, _tlbi_fct, l0_xlation_table)
+#else
+#define DEFINE_ENABLE_MMU_EL(_el, _tcr_extra, _tlbi_fct) \
+	_DEFINE_ENABLE_MMU_EL(_el, _tcr_extra, _tlbi_fct, l1_xlation_table)
+#endif
 
 /* Define EL1 and EL3 variants of the function enabling the MMU */
 DEFINE_ENABLE_MMU_EL(1,

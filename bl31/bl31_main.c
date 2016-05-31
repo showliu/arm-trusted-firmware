@@ -90,6 +90,13 @@ void bl31_main(void)
 	INFO("BL31: Initializing runtime services\n");
 	runtime_svc_init();
 
+#ifdef D02_HACKS
+	/*
+	 * Register the interrupt services, e.g., RAS.
+	 * Actually does nothing at the moment.
+	 */
+	d02_register_interrupt_svc();
+#endif
 	/*
 	 * All the cold boot actions on the primary cpu are done. We now need to
 	 * decide which is the next image (BL32 or BL33) and how to execute it.

@@ -257,6 +257,10 @@ int plat_get_rotpk_info(void *cookie, void **key_ptr, unsigned int *key_len,
 int plat_get_nv_ctr(void *cookie, unsigned int *nv_ctr);
 int plat_set_nv_ctr(void *cookie, unsigned int nv_ctr);
 
+#ifdef D02_HACKS
+void d02_register_interrupt_svc();
+#endif
+
 #if ENABLE_PLAT_COMPAT
 /*
  * The below declarations are to enable compatibility for the platform ports

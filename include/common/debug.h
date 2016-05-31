@@ -75,7 +75,12 @@
 #endif
 
 #if LOG_LEVEL >= LOG_LEVEL_VERBOSE
+#ifdef LOG_FILE_LINE
+# define VERBOSE(...)	do { tf_printf("VERBOSE: %s:%d: ", __FILE__, __LINE__); \
+			     tf_printf(__VA_ARGS__); } while(0)
+#else
 # define VERBOSE(...)	tf_printf("VERBOSE: " __VA_ARGS__)
+#endif
 #else
 # define VERBOSE(...)
 #endif

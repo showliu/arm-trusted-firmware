@@ -211,6 +211,7 @@ int32_t register_interrupt_type_handler(uint32_t type,
 					interrupt_type_handler_t handler,
 					uint32_t flags)
 {
+#ifndef D02_HACKS
 	int32_t rc;
 
 	/* Validate the 'handler' parameter */
@@ -228,6 +229,7 @@ int32_t register_interrupt_type_handler(uint32_t type,
 	rc = set_routing_model(type, flags);
 	if (rc)
 		return rc;
+#endif
 
 	/* Save the handler */
 	intr_type_descs[type].handler = handler;
